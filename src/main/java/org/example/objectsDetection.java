@@ -30,6 +30,11 @@ public class objectsDetection {
     }
     public static void main(String[] args) throws InterruptedException {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
+        int frameCount = 0;
+        long lastTime = System.currentTimeMillis();
+
+
         String modelWeights = "C:\\Users\\sabit\\OneDrive\\untitled\\openCV\\src\\main\\java\\org\\example\\cross-hands.weights"; //Download and load only wights for YOLO , this is obtained from official YOLO site//
         String modelConfiguration = "C:\\Users\\sabit\\OneDrive\\untitled\\openCV\\src\\main\\java\\org\\example\\cross-hands.cfg";//Download and load cfg file for YOLO , can be obtained from official site//
         String filePath = "C:\\Users\\sabit\\OneDrive\\untitled\\openCV\\src\\main\\java\\org\\example\\WIN_20230610_19_29_42_Pro.mp4"; //My video  file to be analysed//
@@ -54,13 +59,15 @@ public class objectsDetection {
 
         List<Mat> result = new ArrayList<>();
         List<String> outBlobNames = getOutputNames(net);
+        Mat blob = new Mat();
 
         while (true) {
             if (cap.read(frame)) {
-                Mat blob = Dnn.blobFromImage(frame, 0.00392, sz, new Scalar(0), true, false);
+                Imgproc.resize(frame, frame, new Size(320, 240)); // Измените размер кадра
+                blob = Dnn.blobFromImage(frame, 0.00392, sz, new Scalar(0), true, false);
                 net.setInput(blob);
                 net.forward(result, outBlobNames);
-                float confThreshold = 0.6f;
+                float confThreshold = 0.5f;
                 List<Integer> clsIds = new ArrayList<>();
                 List<Float> confs = new ArrayList<>();
                 //confs.add(0f);
@@ -102,12 +109,22 @@ public class objectsDetection {
                         int idx = ind[i];
                         Rect2d box = boxesArray[idx];
                         Imgproc.rectangle(frame, box.tl(), box.br(), new Scalar(0, 0, 255), 2);
-                        System.out.println(idx);
+                        System.out.print("X= " +box.tl().x + " : ");
+                        System.out.println("Y = " + box.br().y);
                     }
                 }
                 ImageIcon image = new ImageIcon(Mat2BufferedImage(frame));
                 vidpanel.setIcon(image);
                 vidpanel.repaint();
+
+/*                frameCount++;
+
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - lastTime >= 1000) {
+                    System.out.println("Количество кадров в секунду: " + frameCount);
+                    frameCount = 0;
+                    lastTime = currentTime;
+                }*/
             }
         }
     }
