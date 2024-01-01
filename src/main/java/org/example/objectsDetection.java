@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.apparate.Volume;
+import org.example.model.Hand;
 import org.opencv.core.*;
 import org.opencv.dnn.Dnn;
 import org.opencv.dnn.Net;
@@ -9,6 +11,7 @@ import org.opencv.utils.Converters;
 import org.opencv.videoio.VideoCapture;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.LineUnavailableException;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -17,7 +20,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.opencv.imgproc.Imgproc.FONT_HERSHEY_SIMPLEX;
+import static org.opencv.imgproc.Imgproc.putText;
+
 public class objectsDetection {
+    static List<Hand> objects = new ArrayList<>();
 
     private static List<String> getOutputNames(Net net) {
         List<String> names = new ArrayList<>();
@@ -28,15 +35,17 @@ public class objectsDetection {
         outLayers.forEach((item) -> names.add(layersNames.get(item - 1)));//unfold and create R-CNN layers from the loaded YOLO model//
         return names;
     }
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, LineUnavailableException {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        int frameCount = 0;
+       /* int frameCount = 0;
         long lastTime = System.currentTimeMillis();
 
+        Volume volume = new Volume();
+        volume.changeVolume(0.5f);*/
 
-        String modelWeights = "C:\\Users\\sabit\\OneDrive\\untitled\\openCV\\src\\main\\java\\org\\example\\cross-hands.weights"; //Download and load only wights for YOLO , this is obtained from official YOLO site//
-        String modelConfiguration = "C:\\Users\\sabit\\OneDrive\\untitled\\openCV\\src\\main\\java\\org\\example\\cross-hands.cfg";//Download and load cfg file for YOLO , can be obtained from official site//
+        String modelWeights = "D:\\project\\handtracking\\src\\main\\resources\\yolo\\cross-hands.weights"; //Download and load only wights for YOLO , this is obtained from official YOLO site//
+        String modelConfiguration = "D:\\project\\handtracking\\src\\main\\resources\\yolo\\cross-hands.cfg";//Download and load cfg file for YOLO , can be obtained from official site//
         String filePath = "C:\\Users\\sabit\\OneDrive\\untitled\\openCV\\src\\main\\java\\org\\example\\WIN_20230610_19_29_42_Pro.mp4"; //My video  file to be analysed//
         VideoCapture cap = new VideoCapture(0); // Use 0 for default webcam. You can change the parameter if you have multiple webcams.
 
@@ -63,7 +72,7 @@ public class objectsDetection {
 
         while (true) {
             if (cap.read(frame)) {
-                Imgproc.resize(frame, frame, new Size(320, 240)); // Измените размер кадра
+                Imgproc.resize(frame, frame, new Size(256, 256)); // Измените размер кадра
                 blob = Dnn.blobFromImage(frame, 0.00392, sz, new Scalar(0), true, false);
                 net.setInput(blob);
                 net.forward(result, outBlobNames);
@@ -90,11 +99,13 @@ public class objectsDetection {
 
                             clsIds.add((int) classIdPoint.x);
                             confs.add((float) confidence);
-                            rects.add(new Rect2d(left, top, width, height));
+                            Hand hand = new Hand(left, top, width, height);
+                            rects.add(hand);
+                            //System.out.println(hand.getName());
                         }
                     }
                 }
-                float nmsThresh = 0.5f;
+                float nmsThresh = 0.3f;
                 if(!confs.isEmpty()) {
                     MatOfFloat confidences = new MatOfFloat(Converters.vector_float_to_Mat(confs));
                     Rect2d[] boxesArray = rects.toArray(new Rect2d[0]);
@@ -107,8 +118,17 @@ public class objectsDetection {
 
                     for (int i = 0; i < ind.length; ++i) {
                         int idx = ind[i];
-                        Rect2d box = boxesArray[idx];
+                        Hand box = (Hand) boxesArray[idx];
+                        Hand existingHand = findExistingHand(box);
+                        if (existingHand != null) {
+                            box = existingHand;
+                        }else {
+                            objects.add(box);
+                        }
+                        String name = box.getName(); // Получаем имя объекта7
                         Imgproc.rectangle(frame, box.tl(), box.br(), new Scalar(0, 0, 255), 2);
+                        putText(frame, name, new Point(box.tl().x, box.tl().y - 5), FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(255, 255, 255)); // Рисуем имя
+                        box.addCoordinate(box.tl().x, box.br().y);
                         System.out.print("X= " +box.tl().x + " : ");
                         System.out.println("Y = " + box.br().y);
                     }
@@ -116,15 +136,6 @@ public class objectsDetection {
                 ImageIcon image = new ImageIcon(Mat2BufferedImage(frame));
                 vidpanel.setIcon(image);
                 vidpanel.repaint();
-
-/*                frameCount++;
-
-                long currentTime = System.currentTimeMillis();
-                if (currentTime - lastTime >= 1000) {
-                    System.out.println("Количество кадров в секунду: " + frameCount);
-                    frameCount = 0;
-                    lastTime = currentTime;
-                }*/
             }
         }
     }
@@ -142,5 +153,26 @@ public class objectsDetection {
             e.printStackTrace();
         }
         return img;
+    }
+
+    private static Hand findExistingHand(Hand newHand) {
+        final int errorMargin = 40; // Величина погрешности в пикселях
+
+        for (Hand hand : objects) {
+            boolean leftInRange = hand.x >= newHand.x - errorMargin &&
+                    hand.x <= newHand.x + errorMargin;
+            boolean topInRange = hand.y >= newHand.y - errorMargin &&
+                    hand.y <= newHand.y + errorMargin;
+            boolean widthInRange = hand.width >= newHand.width - errorMargin &&
+                    hand.width <= newHand.width + errorMargin;
+            boolean heightInRange = hand.height >= newHand.height - errorMargin &&
+                    hand.height <= newHand.height + errorMargin;
+
+            if (leftInRange && topInRange && widthInRange && heightInRange) {
+                hand.update(newHand); // Обновляем данные о руке
+                System.out.println("Find!");
+                return hand;            }
+        }
+        return null;
     }
 }
