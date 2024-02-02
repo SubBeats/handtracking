@@ -1,6 +1,8 @@
 package org.example;
 
+import org.example.model.Hand;
 import org.opencv.core.*;
+import org.opencv.core.Point;
 import org.opencv.dnn.Dnn;
 import org.opencv.dnn.Net;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -10,6 +12,7 @@ import org.opencv.videoio.VideoCapture;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,9 +33,8 @@ public class objectsDetection {
     }
     public static void main(String[] args) throws InterruptedException {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        String modelWeights = "C:\\Users\\sabit\\OneDrive\\untitled\\openCV\\src\\main\\java\\org\\example\\cross-hands.weights"; //Download and load only wights for YOLO , this is obtained from official YOLO site//
-        String modelConfiguration = "C:\\Users\\sabit\\OneDrive\\untitled\\openCV\\src\\main\\java\\org\\example\\cross-hands.cfg";//Download and load cfg file for YOLO , can be obtained from official site//
-        String filePath = "C:\\Users\\sabit\\OneDrive\\untitled\\openCV\\src\\main\\java\\org\\example\\WIN_20230610_19_29_42_Pro.mp4"; //My video  file to be analysed//
+        String modelWeights = "/Users/bulat/IdeaProjects/openCV/src/main/java/org/example/cross-hands-tiny-prn.weights"; //Download and load only wights for YOLO , this is obtained from official YOLO site//
+        String modelConfiguration = "/Users/bulat/IdeaProjects/openCV/src/main/java/org/example/cross-hands-tiny-prn.cfg";//Download and load cfg file for YOLO , can be obtained from official site//
         VideoCapture cap = new VideoCapture(0); // Use 0 for default webcam. You can change the parameter if you have multiple webcams.
 
         if (!cap.isOpened()) {
@@ -45,7 +47,7 @@ public class objectsDetection {
         JLabel vidpanel = new JLabel();
         jframe.setContentPane(vidpanel);
         jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jframe.setSize(600, 600);
+        jframe.setSize(256, 256);
         jframe.setVisible(true);
 
         Net net = Dnn.readNetFromDarknet(modelConfiguration, modelWeights);
@@ -60,7 +62,7 @@ public class objectsDetection {
                 Mat blob = Dnn.blobFromImage(frame, 0.00392, sz, new Scalar(0), true, false);
                 net.setInput(blob);
                 net.forward(result, outBlobNames);
-                float confThreshold = 0.6f;
+                float confThreshold = 0.4f;
                 List<Integer> clsIds = new ArrayList<>();
                 List<Float> confs = new ArrayList<>();
                 //confs.add(0f);
@@ -83,14 +85,14 @@ public class objectsDetection {
 
                             clsIds.add((int) classIdPoint.x);
                             confs.add((float) confidence);
-                            rects.add(new Rect2d(left, top, width, height));
+                            rects.add(new Hand(left, top, width, height));
                         }
                     }
                 }
                 float nmsThresh = 0.5f;
                 if(!confs.isEmpty()) {
                     MatOfFloat confidences = new MatOfFloat(Converters.vector_float_to_Mat(confs));
-                    Rect2d[] boxesArray = rects.toArray(new Rect2d[0]);
+                    Hand[] boxesArray = rects.toArray(new Hand[0]);
                     MatOfRect2d boxes = new MatOfRect2d();
                     boxes.fromArray(boxesArray);
                     MatOfInt indices = new MatOfInt();
@@ -100,9 +102,10 @@ public class objectsDetection {
 
                     for (int i = 0; i < ind.length; ++i) {
                         int idx = ind[i];
-                        Rect2d box = boxesArray[idx];
+                        Hand box = boxesArray[idx];
                         Imgproc.rectangle(frame, box.tl(), box.br(), new Scalar(0, 0, 255), 2);
-                        System.out.println(idx);
+                        Imgproc.putText(frame,box.getName(),box.tl(),1,10.0,new Scalar(0, 0, 255));
+                        System.out.println(box.getName());
                     }
                 }
                 ImageIcon image = new ImageIcon(Mat2BufferedImage(frame));
@@ -121,6 +124,10 @@ public class objectsDetection {
         BufferedImage img = null;
         try {
             img = ImageIO.read(in);
+            Image resizedImage = img.getScaledInstance(256, 256, Image.SCALE_SMOOTH);
+            BufferedImage bufferedImage = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
+            bufferedImage.getGraphics().drawImage(resizedImage, 0, 0, null);
+            return bufferedImage;
         } catch (IOException e) {
             e.printStackTrace();
         }
