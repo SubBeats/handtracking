@@ -22,6 +22,10 @@ import java.util.List;
 
 public class objectsDetection {
 
+    static ArrayList<Hand> history = new ArrayList<>();
+    private static int tolerance = 40;
+
+
     private static List<String> getOutputNames(Net net) {
         List<String> names = new ArrayList<>();
 
@@ -65,8 +69,7 @@ public class objectsDetection {
                 float confThreshold = 0.4f;
                 List<Integer> clsIds = new ArrayList<>();
                 List<Float> confs = new ArrayList<>();
-                //confs.add(0f);
-                List<Rect2d> rects = new ArrayList<>();
+                List<Hand> rects = new ArrayList<>();
                 for (int i = 0; i < result.size(); ++i) {
                     Mat level = result.get(i);
                     for (int j = 0; j < level.rows(); ++j) {
@@ -85,10 +88,22 @@ public class objectsDetection {
 
                             clsIds.add((int) classIdPoint.x);
                             confs.add((float) confidence);
-                            rects.add(new Hand(left, top, width, height));
+
+                            Hand existingHand = isSameHand(left, top, width, height);
+                            if (existingHand != null) {
+                                // Используйте найденный объект из history
+                                rects.add(existingHand);
+                            } else {
+                                // Создайте новый объект, так как существующий объект не был найден в history
+                                rects.add(new Hand(left, top, width, height));
+                            }
                         }
                     }
                 }
+
+                history.clear(); // Очистить историю перед обновлением
+                history.addAll(rects);
+
                 float nmsThresh = 0.5f;
                 if(!confs.isEmpty()) {
                     MatOfFloat confidences = new MatOfFloat(Converters.vector_float_to_Mat(confs));
@@ -104,7 +119,7 @@ public class objectsDetection {
                         int idx = ind[i];
                         Hand box = boxesArray[idx];
                         Imgproc.rectangle(frame, box.tl(), box.br(), new Scalar(0, 0, 255), 2);
-                        Imgproc.putText(frame,box.getName(),box.tl(),1,10.0,new Scalar(0, 0, 255));
+                        Imgproc.putText(frame,box.getName(),box.tl(),2,5.0,new Scalar(255, 0, 0));
                         System.out.println(box.getName());
                     }
                 }
@@ -132,5 +147,15 @@ public class objectsDetection {
             e.printStackTrace();
         }
         return img;
+    }
+
+    private static Hand isSameHand(int left, int top, int width, int height) {
+        for (Hand oldHand : history) {
+            if (Math.abs(oldHand.getX() - left) <= tolerance && Math.abs(oldHand.getY() - top) <= tolerance) {
+                oldHand.update(left,top, width, height);
+                return oldHand;
+            }
+        }
+        return null;
     }
 }
