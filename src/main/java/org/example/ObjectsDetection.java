@@ -28,7 +28,7 @@ import java.util.List;
 public class ObjectsDetection {
 
     static ArrayList<Hand> history = new ArrayList<>();
-    private static int tolerance = 50;
+    private static int tolerance = 80;
 
     private ApparateFunctions apparateFunctions;
 
@@ -40,7 +40,7 @@ public class ObjectsDetection {
     private Functionality divergence;
     private boolean isPaused = false;
     private ImageIcon pauseIcon;
-    private int threshold = 30;
+    private int threshold = 150;
 
 
     public ObjectsDetection(Functionality left, Functionality move_right,
@@ -114,10 +114,11 @@ public class ObjectsDetection {
             }
 
             if (cap.read(frame)) {
+                //Thread.sleep(1000);
                 Mat blob = Dnn.blobFromImage(frame, 0.00392, sz, new Scalar(0), true, false);
                 net.setInput(blob);
                 net.forward(result, outBlobNames);
-                float confThreshold = 0.4f;
+                float confThreshold = 0.5f;
                 List<Integer> clsIds = new ArrayList<>();
                 List<Float> confs = new ArrayList<>();
                 List<Hand> rects = new ArrayList<>();
@@ -156,7 +157,7 @@ public class ObjectsDetection {
                 history.clear();
                 history.addAll(rects);
 
-                float nmsThresh = 0.5f;
+                float nmsThresh = 0.6f;
 
                 if (!confs.isEmpty()) {
                     MatOfFloat confidences = new MatOfFloat(Converters.vector_float_to_Mat(confs));
@@ -172,7 +173,8 @@ public class ObjectsDetection {
                         int idx = ind[i];
                         Hand box = boxesArray[idx];
                         Imgproc.rectangle(frame, box.tl(), box.br(), new Scalar(0, 0, 255), 2);
-                        Imgproc.putText(frame, box.getName(), box.tl(), 2, 5.0, new Scalar(255, 0, 0));
+                        //Imgproc.putText(frame, box.getName(), box.tl(), 2, 5.0, new Scalar(255, 0, 0));
+                        Imgproc.putText(frame,box.tl() + "", box.tl(), 2, 5.0, new Scalar(255, 0, 0));
                         System.out.println(box.getName());
                     }
                 }
