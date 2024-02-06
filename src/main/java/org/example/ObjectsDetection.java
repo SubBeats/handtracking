@@ -16,8 +16,6 @@ import org.opencv.videoio.VideoCapture;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -41,6 +39,7 @@ public class ObjectsDetection {
     private Functionality convergence;
     private Functionality divergence;
     private boolean isPaused = false;
+    private ImageIcon pauseIcon;
 
     public ObjectsDetection(Functionality left, Functionality move_right,
                             Functionality move_up, Functionality move_down, Functionality convergence, Functionality divergence) {
@@ -51,6 +50,7 @@ public class ObjectsDetection {
         this.move_down = move_down;
         this.convergence = convergence;
         this.divergence = divergence;
+        pauseIcon = new ImageIcon("/Users/bulat/IdeaProjects/openCV/src/main/resources/img/Vector-Pause-Button-PNG-Clipart.png");
     }
 
     private static List<String> getOutputNames(Net net) {
@@ -79,17 +79,25 @@ public class ObjectsDetection {
         JLabel vidpanel = new JLabel();
         jframe.setContentPane(vidpanel);
         jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jframe.setSize(256, 256);
+        jframe.setSize(512, 512);
         jframe.setVisible(true);
         jframe.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 isPaused = !isPaused;
+                if (isPaused) {
+                    JLabel pauseLabel = new JLabel(pauseIcon);
+                    pauseLabel.setBounds(0, 0, 512, 512);
+                    vidpanel.add(pauseLabel);
+                } else {
+                    vidpanel.removeAll();
+                }
+                vidpanel.repaint();
             }
         });
 
         Net net = Dnn.readNetFromDarknet(modelConfiguration, modelWeights);
-        Size sz = new Size(288, 288);
+        Size sz = new Size(512, 512);
 
         List<Mat> result = new ArrayList<>();
         List<String> outBlobNames = getOutputNames(net);
@@ -97,8 +105,10 @@ public class ObjectsDetection {
         while (true) {
 
             if (isPaused) {
-                Thread.sleep(10); // Приостановка выполнения на короткое время
-                continue; // Пропуск выполнения кода до следующей итерации цикла while
+                //vidpanel.setIcon(iconLabel);
+                //vidpanel.repaint();
+                Thread.sleep(10);
+                continue;
             }
 
             if (cap.read(frame)) {
@@ -182,8 +192,8 @@ public class ObjectsDetection {
         BufferedImage img = null;
         try {
             img = ImageIO.read(in);
-            Image resizedImage = img.getScaledInstance(256, 256, Image.SCALE_SMOOTH);
-            BufferedImage bufferedImage = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
+            Image resizedImage = img.getScaledInstance(512, 512, Image.SCALE_SMOOTH);
+            BufferedImage bufferedImage = new BufferedImage(512, 512, BufferedImage.TYPE_INT_RGB);
             bufferedImage.getGraphics().drawImage(resizedImage, 0, 0, null);
             return bufferedImage;
         } catch (IOException e) {
