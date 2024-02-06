@@ -28,7 +28,7 @@ import java.util.List;
 public class ObjectsDetection {
 
     static ArrayList<Hand> history = new ArrayList<>();
-    private static int tolerance = 40;
+    private static int tolerance = 50;
 
     private ApparateFunctions apparateFunctions;
 
@@ -40,6 +40,8 @@ public class ObjectsDetection {
     private Functionality divergence;
     private boolean isPaused = false;
     private ImageIcon pauseIcon;
+    private int threshold = 30;
+
 
     public ObjectsDetection(Functionality left, Functionality move_right,
                             Functionality move_up, Functionality move_down, Functionality convergence, Functionality divergence) {
@@ -145,7 +147,7 @@ public class ObjectsDetection {
                             if (existingHand != null) {
                                 rects.add(existingHand);
                             } else {
-                                rects.add(new Hand(left, top, width, height));
+                                rects.add(new Hand(left, top, width, height,threshold));
                             }
                         }
                     }

@@ -8,7 +8,7 @@ public class ChekCoordinateChanges {
 
     @Test
     public void testMove() {
-        Hand hand = new Hand(10,10,10,10);
+        Hand hand = new Hand(10,10,10,10,10);
         hand.addCoordinate(15,10);
         var result = hand.addCoordinate(21,10);
         Movements expect = Movements.right;
@@ -17,7 +17,7 @@ public class ChekCoordinateChanges {
 
     @Test
     public void testNotMove() {
-        Hand hand = new Hand(10,10,10,10);
+        Hand hand = new Hand(10,10,10,10,10);
         hand.addCoordinate(15,10);
         var result = hand.addCoordinate(20,10);
         String expect = null;
