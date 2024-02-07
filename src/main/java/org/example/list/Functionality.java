@@ -6,8 +6,13 @@ public enum Functionality {
     upBrightness,
     downBrightness,
     upArrow,
+    downArrow,
     arrow_is_right,
     arrow_is_left,
     zoom_in,
-    zoom_out
+    zoom_out,
+    previousTab,
+    nextTab,
+    outToGeneralTabs,
+    SelectTab
 }

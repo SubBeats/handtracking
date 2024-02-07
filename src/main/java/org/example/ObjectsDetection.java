@@ -28,7 +28,7 @@ import java.util.List;
 public class ObjectsDetection {
 
     static ArrayList<Hand> history = new ArrayList<>();
-    private static int tolerance = 80;
+    private static int tolerance = 100;
 
     private ApparateFunctions apparateFunctions;
 
@@ -104,15 +104,15 @@ public class ObjectsDetection {
         List<Mat> result = new ArrayList<>();
         List<String> outBlobNames = getOutputNames(net);
 
-        while (true) {
+        int timer = 6000;
 
+        while (true) {
             if (isPaused) {
-                //vidpanel.setIcon(iconLabel);
-                //vidpanel.repaint();
+                if(timer == 0) System.err.println("Жизнь движется а мы нет !");
+                timer--;
                 Thread.sleep(10);
                 continue;
             }
-
             if (cap.read(frame)) {
                 //Thread.sleep(1000);
                 Mat blob = Dnn.blobFromImage(frame, 0.00392, sz, new Scalar(0), true, false);
@@ -172,9 +172,9 @@ public class ObjectsDetection {
                     for (int i = 0; i < ind.length; ++i) {
                         int idx = ind[i];
                         Hand box = boxesArray[idx];
-                        Imgproc.rectangle(frame, box.tl(), box.br(), new Scalar(0, 0, 255), 2);
-                        //Imgproc.putText(frame, box.getName(), box.tl(), 2, 5.0, new Scalar(255, 0, 0));
-                        Imgproc.putText(frame,box.tl() + "", box.tl(), 2, 5.0, new Scalar(255, 0, 0));
+                        Imgproc.rectangle(frame, new Point(box.getX(),box.getY()), box.br(), new Scalar(0, 0, 255), 2);
+                        Imgproc.putText(frame, box.getName(), box.tl(), 2, 5.0, new Scalar(255, 0, 0));
+                        //Imgproc.putText(frame,box.tl() + "", box.tl(), 2, 5.0, new Scalar(255, 0, 0));
                         System.out.println(box.getName());
                     }
                 }
@@ -211,6 +211,7 @@ public class ObjectsDetection {
             if (Math.abs(oldHand.getX() - left) <= tolerance && Math.abs(oldHand.getY() - top) <= tolerance) {
                 var action = oldHand.update(left,top, width, height);
                 if(action != null) {
+
                     switch (action) {
                         case left -> apparateFunctions.startFunction(move_left);
                         case right -> apparateFunctions.startFunction(move_right);

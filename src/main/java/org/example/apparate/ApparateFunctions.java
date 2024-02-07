@@ -13,7 +13,7 @@ public class ApparateFunctions {
     private void increaseBrightness(){
         try {
             String[] increaseBrightness = {"osascript", "-e", "tell application \"System Events\"", "-e", "key code 144", "-e", "end tell"};
-            Process process  = runtime.exec(increaseBrightness);
+            runtime.exec(increaseBrightness);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -22,7 +22,7 @@ public class ApparateFunctions {
     private void decreaseBrightness(){
         try {
             String[] decreaseBrightness = {"osascript", "-e", "tell application \"System Events\"", "-e", "key code 144", "-e", "end tell"};
-            Process process  = runtime.exec(decreaseBrightness);
+            runtime.exec(decreaseBrightness);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -31,7 +31,7 @@ public class ApparateFunctions {
     private void increaseVolume(){
         try {
             String increaseVolume = "osascript -e \"set volume output volume (output volume of (get volume settings) + " + increaseBy + ")\"";
-            Process process  = runtime.exec(increaseVolume);
+            runtime.exec(increaseVolume);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -40,7 +40,98 @@ public class ApparateFunctions {
     private void decreaseVolume(){
         try {
             String decreaseVolume = "osascript -e \"set volume output volume (output volume of (get volume settings) + " + -increaseBy + ")\"";
-            Process process  = runtime.exec(decreaseVolume);
+            runtime.exec(decreaseVolume);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void arrowUp() {
+        try {
+            //Thread.sleep(1000);
+            String[] arg = {"osascript", "-e", "tell application \"System Events\"", "-e", "key code 126", "-e", "end tell"};
+            runtime.exec(arg);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void arrowDown() {
+        try {
+            //Thread.sleep(1000);
+            String[] arg = {"osascript", "-e", "tell application \"System Events\"", "-e", "key code 125", "-e", "end tell"};
+            runtime.exec(arg);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void arrowLeft() {
+        try {
+            //Thread.sleep(1000);
+            String[] arg = {"osascript", "-e", "tell application \"System Events\"", "-e", "key code 123", "-e", "end tell"};
+            runtime.exec(arg);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void arrowRight() {
+        try {
+            //Thread.sleep(1000);
+            String[] arg = {"osascript", "-e", "tell application \"System Events\"", "-e", "key code 124", "-e", "end tell"};
+            runtime.exec(arg);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void scaleChangeUP() {
+        try {
+        String[] argPlus = {"osascript", "-e", "tell application \"System Events\"", "-e", "key code 55 & 24", "-e", "end tell"};
+        runtime.exec(argPlus);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void scaleChangeDown() {
+        try {
+            String[] argMinus = {"osascript", "-e", "tell application \"System Events\"", "-e", "key code 55 & 27", "-e", "end tell"};
+            runtime.exec(argMinus);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void previousTab(){
+        try {
+            String[] decreaseVolume = {"osascript", "-e", "tell application \"System Events\"", "-e", "key code 123 using control down", "-e", "end tell"};
+            runtime.exec(decreaseVolume);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void nextTab(){
+        try {
+            String[] decreaseVolume = {"osascript", "-e", "tell application \"System Events\"", "-e", "key code 124 using control down", "-e", "end tell"};
+            runtime.exec(decreaseVolume);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void outToGeneralTabs(){
+        try {
+            String[] decreaseVolume = {"osascript", "-e", "tell application \"System Events\"", "-e", "key code 125 using control down", "-e", "end tell"};
+            runtime.exec(decreaseVolume);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void SelectTab(){
+        try {
+            String[] decreaseVolume = {"osascript", "-e", "tell application \"System Events\"", "-e", "key code 126 using control down", "-e", "end tell"};
+            runtime.exec(decreaseVolume);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -61,14 +152,34 @@ public class ApparateFunctions {
                 decreaseBrightness();
             }
             case upArrow -> {
+                arrowUp();
+            }
+            case downArrow -> {
+                arrowDown();
             }
             case arrow_is_right -> {
+                arrowRight();
             }
             case arrow_is_left -> {
+                arrowLeft();
             }
             case zoom_in -> {
+                scaleChangeUP();
             }
             case zoom_out -> {
+                scaleChangeDown();
+            }
+            case previousTab -> {
+                previousTab();
+            }
+            case nextTab -> {
+                nextTab();
+            }
+            case outToGeneralTabs -> {
+                outToGeneralTabs();
+            }
+            case SelectTab -> {
+                SelectTab();
             }
         }
     }

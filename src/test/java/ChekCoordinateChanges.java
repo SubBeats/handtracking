@@ -23,4 +23,21 @@ public class ChekCoordinateChanges {
         String expect = null;
         assertEquals(expect, result, "not move");
     }
+
+    @Test
+    public void testAddCoor() {
+        Hand hand = new Hand(10,10,10,10,150);
+        hand.update(70,10,10,10);
+        var result = hand.getX();
+        double expect = 70;
+        assertEquals(expect, result, "not move");
+    }
+
+    @Test
+    public void testAddOneCoordinate() {
+        Hand hand = new Hand(10,10,10,10,150);
+        var result = hand.getX();
+        double expect = 10;
+        assertEquals(expect, result, "not move");
+    }
 }

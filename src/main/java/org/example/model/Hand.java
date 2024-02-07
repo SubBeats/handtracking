@@ -1,0 +1,99 @@
+package org.example.model;
+
+import org.example.list.Movements;
+import org.opencv.core.Rect2d;
+
+import java.util.UUID;
+
+public class Hand extends Rect2d {
+    private String name;
+    private ObjectTracker coordinatesX;
+    private ObjectTracker  coordinatesY;
+    private int sizeOfListOfCoordinates = 5;
+    private int threshold;
+    private int errorRate = 50;
+
+
+    public Hand(int x, int y, double width, double height, int threshold) {
+        super(x, y, width, height);
+        this.name = "Object " + UUID.randomUUID().toString().substring(0, 5); // Генерируем случайное имя
+        coordinatesX = new ObjectTracker(sizeOfListOfCoordinates);
+        coordinatesY = new ObjectTracker(sizeOfListOfCoordinates);
+        addCoordinate(x,y);
+        this.threshold = threshold;
+    }
+
+    public Movements addCoordinate(int x, int y) {
+
+        coordinatesX.addCoordinate(x);
+        coordinatesY.addCoordinate(y);
+
+        this.x = x;
+        this.y = y;
+
+        if(this.getCoordinateX()>threshold) {
+            //call func to do smf
+            return (Movements.left);
+        } else if (this.getCoordinateX()<-threshold) {
+            return (Movements.right);
+        }
+        return null;
+    }
+
+    public int getCoordinateX(){
+        if(coordinatesX.getSize() == sizeOfListOfCoordinates) {
+            return coordinatesX.getCoordinates();
+        }
+        return 0;
+    }
+
+    public int getCoordinateY(){
+        if(coordinatesY.getSize() == sizeOfListOfCoordinates) {
+            return coordinatesY.getCoordinates();
+        }
+        return 0;
+    }
+
+
+    public double getX(){
+        return coordinatesX.getLastCoordinate();
+    }
+
+    public double getY(){
+        return coordinatesY.getLastCoordinate();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+
+    //здесь добавлена новая погрешность(errorRate) эта погрешность нужна чтобы не ввонить новые коорлинаты в лист если их разница слишком мала
+    public Movements update(int left, int top, int width, int height) {
+        if((getCoordinateX() == left || getCoordinateY() == top) ||
+                (Math.abs(getCoordinateX() - left) <= errorRate && Math.abs(getCoordinateY() - top) <= errorRate) ||
+                (coordinatesX.getSize() ==0 || coordinatesY.getSize() ==0 ))
+        {
+            return null;
+        }
+        else {
+            this.width = width;
+            this.height = height;
+            var move = addCoordinate(left, top);
+            return move;
+        }
+    }
+
+    private void compareCoor(int width, int height){
+        System.out.println("Update object \n");
+        System.out.printf("OLD left coor is - %d \n",getCoordinateX());
+        System.out.printf("OLD top coor is - %d \n",getCoordinateY());
+        System.out.printf("OLD wight coor is - %d \n",width);
+        System.out.printf("OLD height coor is - %d \n",height);
+        System.out.println("O____________________0");
+        System.out.printf("NEW left coor is - %d \n",getCoordinateX());
+        System.out.printf("NEW top coor is - %d \n",getCoordinateY());
+        System.out.printf("NEW wight coor is - %d \n",width);
+        System.out.printf("NEW height coor is - %d \n",height);
+    }
+}
