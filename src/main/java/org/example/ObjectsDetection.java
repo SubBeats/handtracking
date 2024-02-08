@@ -28,19 +28,19 @@ import java.util.List;
 public class ObjectsDetection {
 
     static ArrayList<Hand> history = new ArrayList<>();
-    private static int tolerance = 100;
+    private static final int tolerance = 100;
 
-    private ApparateFunctions apparateFunctions;
+    private final ApparateFunctions apparateFunctions;
 
-    private Functionality move_left;
-    private Functionality move_right;
-    private Functionality move_up;
-    private Functionality move_down;
-    private Functionality convergence;
-    private Functionality divergence;
+    private final Functionality move_left;
+    private final Functionality move_right;
+    private final Functionality move_up;
+    private final Functionality move_down;
+    private final Functionality convergence;
+    private final Functionality divergence;
     private boolean isPaused = false;
-    private ImageIcon pauseIcon;
-    private int threshold = 150;
+    private final ImageIcon pauseIcon;
+    private final int threshold = 150;
 
 
     public ObjectsDetection(Functionality left, Functionality move_right,
@@ -141,7 +141,7 @@ public class ObjectsDetection {
                             int top = centerY - height / 2;
 
                             clsIds.add((int) classIdPoint.x);
-                            confs.add((float) confidence);
+                            confs.add(confidence);
 
                             Hand existingHand = isSameHand(left, top, width, height);
 

@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class ApparateFunctions {
 
-    private Runtime runtime = Runtime.getRuntime();
+    private final Runtime runtime = Runtime.getRuntime();
     private static final int increaseBy = 10;
 
 

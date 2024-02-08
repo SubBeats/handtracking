@@ -6,12 +6,12 @@ import org.opencv.core.Rect2d;
 import java.util.UUID;
 
 public class Hand extends Rect2d {
-    private String name;
-    private ObjectTracker coordinatesX;
-    private ObjectTracker  coordinatesY;
-    private int sizeOfListOfCoordinates = 5;
-    private int threshold;
-    private int errorRate = 50;
+    private final String name;
+    private final ObjectTracker coordinatesX;
+    private final ObjectTracker  coordinatesY;
+    private final int sizeOfListOfCoordinates = 5;
+    private final int threshold;
+    private final int errorRate = 50;
 
 
     public Hand(int x, int y, double width, double height, int threshold) {
