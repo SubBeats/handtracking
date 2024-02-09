@@ -42,6 +42,8 @@ public class ObjectsDetection {
     private final ImageIcon pauseIcon;
     private final int threshold = 150;
 
+    //JTabbedPane tabbedPane = new JTabbedPane();
+
 
     public ObjectsDetection(Functionality left, Functionality move_right,
                             Functionality move_up, Functionality move_down, Functionality convergence, Functionality divergence) {
@@ -65,9 +67,10 @@ public class ObjectsDetection {
         return names;
     }
     public void detectObjects() throws InterruptedException {
+
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        String modelWeights = "/Users/bulat/IdeaProjects/openCV/src/main/java/org/example/cross-hands-tiny-prn.weights";
+        String modelWeights = "/Users/bulat/IdeaProjects/openфCV/src/main/java/org/example/cross-hands-tiny-prn.weights";
         String modelConfiguration = "/Users/bulat/IdeaProjects/openCV/src/main/java/org/example/cross-hands-tiny-prn.cfg";
         VideoCapture cap = new VideoCapture(0);
 
@@ -80,7 +83,7 @@ public class ObjectsDetection {
         JFrame jframe = new JFrame("Video");
         JLabel vidpanel = new JLabel();
         jframe.setContentPane(vidpanel);
-        jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jframe.setSize(512, 512);
         jframe.setVisible(true);
         jframe.addMouseListener(new MouseAdapter() {
@@ -174,8 +177,6 @@ public class ObjectsDetection {
                         Hand box = boxesArray[idx];
                         Imgproc.rectangle(frame, new Point(box.getX(),box.getY()), box.br(), new Scalar(0, 0, 255), 2);
                         Imgproc.putText(frame, box.getName(), box.tl(), 2, 5.0, new Scalar(255, 0, 0));
-                        //Imgproc.putText(frame,box.tl() + "", box.tl(), 2, 5.0, new Scalar(255, 0, 0));
-                        System.out.println(box.getName());
                     }
                 }
 
