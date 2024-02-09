@@ -42,7 +42,9 @@ public class ObjectsDetection {
     private final ImageIcon pauseIcon;
     private final int threshold = 150;
 
-    //JTabbedPane tabbedPane = new JTabbedPane();
+    Mat frame = new Mat();
+    JFrame jframe = new JFrame("Video");
+    JLabel vidpanel = new JLabel();
 
 
     public ObjectsDetection(Functionality left, Functionality move_right,
@@ -79,9 +81,6 @@ public class ObjectsDetection {
             System.exit(-1);
         }
 
-        Mat frame = new Mat();
-        JFrame jframe = new JFrame("Video");
-        JLabel vidpanel = new JLabel();
         jframe.setContentPane(vidpanel);
         //jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jframe.setSize(512, 512);
@@ -179,14 +178,17 @@ public class ObjectsDetection {
                         Imgproc.putText(frame, box.getName(), box.tl(), 2, 5.0, new Scalar(255, 0, 0));
                     }
                 }
+                updateImage(frame);
 
-                ImageIcon image = new ImageIcon(Mat2BufferedImage(frame));
-                vidpanel.setIcon(image);
-                vidpanel.repaint();
             }
         }
     }
 
+    private void updateImage(Mat frame) {
+        ImageIcon image = new ImageIcon(Mat2BufferedImage(frame));
+        vidpanel.setIcon(image);
+        vidpanel.repaint();
+    }
 
 
     private static BufferedImage Mat2BufferedImage(Mat image) {
