@@ -14,5 +14,5 @@ public enum Functionality {
     previousTab,
     nextTab,
     outToGeneralTabs,
-    SelectTab
+    selectTab
 }

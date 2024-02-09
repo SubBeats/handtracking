@@ -178,7 +178,7 @@ public class ApparateFunctions {
             case outToGeneralTabs -> {
                 outToGeneralTabs();
             }
-            case SelectTab -> {
+            case selectTab -> {
                 SelectTab();
             }
         }
