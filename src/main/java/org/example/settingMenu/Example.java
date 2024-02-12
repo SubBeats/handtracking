@@ -2,61 +2,108 @@ package org.example.settingMenu;
 
 import org.example.ObjectsDetection;
 import org.example.list.Functionality;
+import org.opencv.core.Mat;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Example {
+    private static Lock lockTab1 = new ReentrantLock();
+    private static Lock lockTab2 = new ReentrantLock();
     private String path = "src/main/resources/properties.txt";
-
     HashMap<String, Functionality> mapComposeFunc;
+    private Mat frame;
+    private JFrame jframe;
+    private JLabel vidpanel;
+    private JLabel settingsLabel;
+    private ObjectsDetection video;
+    private JTabbedPane tabbedPane;
+    Setting setting;
+
     public Example(HashMap<String, Functionality> mapComposeFunc) throws InterruptedException {
         this.mapComposeFunc = mapComposeFunc;
         loadMainPage();
     }
+
     public void loadMainPage() throws InterruptedException {
-        // Create a JTabbedPane
-        JTabbedPane tabbedPane = new JTabbedPane();
+        configMainWindow();
+        configVideoDetectionWindow();
+        configSettingWindow(mapComposeFunc);
+        addListener();
+    }
 
-        JButton button = new JButton("Start");
+    private void configMainWindow() {
 
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ArrayList<Functionality> functionalityArray = readConfigFile();
-                ObjectsDetection video = new ObjectsDetection(functionalityArray.get(0),
-                        functionalityArray.get(1),
-                        functionalityArray.get(2),
-                        functionalityArray.get(3),
-                        functionalityArray.get(4),
-                        functionalityArray.get(5));
+        jframe = new JFrame("Video");
+        vidpanel = new JLabel();
+        settingsLabel = new JLabel();
+
+        tabbedPane = new JTabbedPane();
+
+        // Создаем вкладку "Видео"
+        JPanel videoPanel = new JPanel();
+        videoPanel.setLayout(new BorderLayout());
+        videoPanel.add(vidpanel, BorderLayout.CENTER);
+        tabbedPane.addTab("Video", videoPanel);
+
+        // Создаем вкладку "Настройки"
+        JPanel settingsPanel = new JPanel();
+        settingsPanel.setLayout(new BorderLayout());
+        settingsPanel.add(settingsLabel, BorderLayout.CENTER);
+        tabbedPane.addTab("Настройки", settingsPanel);
+    }
+
+    private void addListener(){
+        jframe.add(tabbedPane);
+        jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jframe.setSize(new Dimension(300, 200));
+        jframe.setVisible(true);
+
+        tabbedPane.addChangeListener(e -> {
+            int tabIndex = tabbedPane.getSelectedIndex();
+            if (tabIndex == 0) {
+                lockTab2.lock(); // Блокировка второй вкладки при переключении на первую
+                lockTab1.unlock(); // Разблокировка первой вкладки
                 try {
-                    video.detectObjects();
+                    vidpanel.setVisible(true);
+                    settingsLabel.setVisible(false);
+                    while (true) {
+                        vidpanel.setIcon(video.scanCamera(vidpanel));
+                        vidpanel.repaint();
+                    }
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
+            } else {
+                lockTab1.lock(); // Блокировка первой вкладки при переключении на вторую
+                lockTab2.unlock(); // Разблокировка второй вкладки
+                settingsLabel.setVisible(true);
+                vidpanel.setVisible(false);
             }
         });
+        lockTab2.lock(); // Изначально блокируем вторую вкладку
 
-        JPanel panel1 = new JPanel();
-        panel1.add(new App(mapComposeFunc));
+    }
 
-        // Add panels to tabs
+    private void configVideoDetectionWindow() throws InterruptedException {
+        ArrayList<Functionality> functionalityArray = readConfigFile();
+        video = new ObjectsDetection(functionalityArray.get(0),
+                functionalityArray.get(1),
+                functionalityArray.get(2),
+                functionalityArray.get(3),
+                functionalityArray.get(4),
+                functionalityArray.get(5));
 
-        tabbedPane.addTab("Tab 1", panel1);
-        tabbedPane.addTab("Tab 2", button);
+        video.configurationObject(jframe,vidpanel,settingsLabel);
+    }
 
-        // Add JTabbedPane to the frame
-        JFrame frame = new JFrame();
-        frame.add(tabbedPane);
-        frame.setResizable(false);
-        frame.setSize(650, 450);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
+    private void configSettingWindow(HashMap<String, Functionality> mapComposeFunc) {
+        setting = new Setting(mapComposeFunc);
     }
 
     private ArrayList<Functionality> readConfigFile() {
@@ -73,8 +120,8 @@ public class Example {
                     arrayList.add(mapComposeFunc.get(value));
                 }
             }
-            if(arrayList.size()-1 != 6){
-                for(int i =0 ;i<5;i++){
+            if (arrayList.size() - 1 != 6) {
+                for (int i = 0; i < 5; i++) {
                     arrayList.add(mapComposeFunc.get(0));
                 }
             }
@@ -84,3 +131,4 @@ public class Example {
         return arrayList;
     }
 }
+

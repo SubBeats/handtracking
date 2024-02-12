@@ -1,1 +1,6 @@
 Left_Swipe=Стрелочка вниз
+Right_Swipe=Стрелочка вниз
+Up_Swipe=Стрелочка вниз
+Down_Swipe=Стрелочка вниз
+Swipe_In=Стрелочка вниз
+Swipe_Out=Стрелочка вниз

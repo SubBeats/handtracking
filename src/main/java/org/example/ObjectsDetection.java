@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ObjectsDetection {
+    Mat frame;
+    JFrame jframe;
+    JLabel vidpanel;
 
     static ArrayList<Hand> history = new ArrayList<>();
     private static final int tolerance = 100;
@@ -41,10 +44,13 @@ public class ObjectsDetection {
     private boolean isPaused = false;
     private final ImageIcon pauseIcon;
     private final int threshold = 150;
-
-    Mat frame = new Mat();
-    JFrame jframe = new JFrame("Video");
-    JLabel vidpanel = new JLabel();
+    VideoCapture cap;
+    List<Mat> result;
+    List<String> outBlobNames;
+    Net net;
+    Size sz;
+    JTabbedPane tabbedPane;
+    private JLabel sesettingsLabel;
 
 
     public ObjectsDetection(Functionality left, Functionality move_right,
@@ -68,23 +74,47 @@ public class ObjectsDetection {
         outLayers.forEach((item) -> names.add(layersNames.get(item - 1)));//unfold and create R-CNN layers from the loaded YOLO model//
         return names;
     }
-    public void detectObjects() throws InterruptedException {
 
+    public void configurationObject(JFrame jframe, JLabel vidpanel, JLabel settingsLabel) throws InterruptedException {
+
+        //this.frame = frame;
+        this.jframe = jframe;
+        this.vidpanel = vidpanel;
+        this.sesettingsLabel = settingsLabel;
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        String modelWeights = "/Users/bulat/IdeaProjects/openфCV/src/main/java/org/example/cross-hands-tiny-prn.weights";
-        String modelConfiguration = "/Users/bulat/IdeaProjects/openCV/src/main/java/org/example/cross-hands-tiny-prn.cfg";
-        VideoCapture cap = new VideoCapture(0);
+        cap = new VideoCapture(0);
 
         if (!cap.isOpened()) {
             System.out.println("Unable to open webcam");
             System.exit(-1);
         }
 
-        jframe.setContentPane(vidpanel);
-        //jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jframe.setSize(512, 512);
-        jframe.setVisible(true);
+        configWindow();
+        //scanCamera();
+    }
+
+    private void configWindow() {
+        String modelWeights = "/Users/bulat/IdeaProjects/openCV/src/main/java/org/example/cross-hands-tiny-prn.weights";
+        String modelConfiguration = "/Users/bulat/IdeaProjects/openCV/src/main/java/org/example/cross-hands-tiny-prn.cfg";
+
+        net = Dnn.readNetFromDarknet(modelConfiguration, modelWeights);
+        sz = new Size(512, 512);
+
+        result = new ArrayList<>();
+        outBlobNames = getOutputNames(net);
+
+          frame = new Mat();
+//        jframe = new JFrame("Video");
+//        vidpanel = new JLabel();
+//        JLabel settingsLabel = new JLabel();
+//
+//        //createTabs(jframe, vidpanel, settingsLabel);
+//
+//        jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        jframe.setSize(800, 600); // Примерный размер окна
+//        jframe.setVisible(true);
+
         jframe.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -99,95 +129,126 @@ public class ObjectsDetection {
                 vidpanel.repaint();
             }
         });
+    }
 
-        Net net = Dnn.readNetFromDarknet(modelConfiguration, modelWeights);
-        Size sz = new Size(512, 512);
+//    private void createTabs(JFrame jframe, JLabel videoLabel, JLabel settingsLabel) {
+//        tabbedPane = new JTabbedPane();
+//
+//        // Создаем вкладку "Видео"
+//        JPanel videoPanel = new JPanel();
+//        videoPanel.setLayout(new BorderLayout());
+//        videoPanel.add(videoLabel, BorderLayout.CENTER);
+//        tabbedPane.addTab("Video", videoPanel);
+//
+//        // Создаем вкладку "Настройки"
+//        JPanel settingsPanel = new JPanel();
+//        settingsPanel.setLayout(new BorderLayout());
+//        settingsPanel.add(settingsLabel, BorderLayout.CENTER);
+//        tabbedPane.addTab("Настройки", settingsPanel);
+//
+//        tabbedPane.addChangeListener(e -> {
+//            // Обработка изменения вкладок
+//            if (tabbedPane.getSelectedIndex() == 0) {
+//                // Отобразить видео Label
+//                videoLabel.setVisible(true);
+//                settingsLabel.setVisible(false);
+//            } else {
+//                // Отобразить настройки Label
+//                videoLabel.setVisible(false);
+//                settingsLabel.setVisible(true);
+//            }
+//        });
+//
+//        jframe.add(tabbedPane);
+//    }
 
-        List<Mat> result = new ArrayList<>();
-        List<String> outBlobNames = getOutputNames(net);
-
+    public ImageIcon scanCamera(JLabel vidpanel) throws InterruptedException {
         int timer = 6000;
 
         while (true) {
-            if (isPaused) {
-                if(timer == 0) System.err.println("Жизнь движется а мы нет !");
-                timer--;
-                Thread.sleep(10);
-                continue;
-            }
-            if (cap.read(frame)) {
-                //Thread.sleep(1000);
-                Mat blob = Dnn.blobFromImage(frame, 0.00392, sz, new Scalar(0), true, false);
-                net.setInput(blob);
-                net.forward(result, outBlobNames);
-                float confThreshold = 0.5f;
-                List<Integer> clsIds = new ArrayList<>();
-                List<Float> confs = new ArrayList<>();
-                List<Hand> rects = new ArrayList<>();
+            if (tabbedPane.getSelectedIndex() == 0) {
 
-                for (int i = 0; i < result.size(); ++i) {
-                    Mat level = result.get(i);
-                    for (int j = 0; j < level.rows(); ++j) {
-                        Mat row = level.row(j);
-                        Mat scores = row.colRange(5, level.cols());
-                        Core.MinMaxLocResult mm = Core.minMaxLoc(scores);
-                        float confidence = (float) mm.maxVal;
-                        Point classIdPoint = mm.maxLoc;
+                if (isPaused) {
+                    if (timer == 0) System.err.println("Жизнь движется а мы нет !");
+                    timer--;
+                    Thread.sleep(10);
+                    continue;
+                }
+                if (cap.read(frame)) {
+                    //Thread.sleep(1000);
+                    Mat blob = Dnn.blobFromImage(frame, 0.00392, sz, new Scalar(0), true, false);
+                    net.setInput(blob);
+                    net.forward(result, outBlobNames);
+                    float confThreshold = 0.5f;
+                    List<Integer> clsIds = new ArrayList<>();
+                    List<Float> confs = new ArrayList<>();
+                    List<Hand> rects = new ArrayList<>();
 
-                        if (confidence > confThreshold) {
-                            int centerX = (int) (row.get(0, 0)[0] * frame.cols());
-                            int centerY = (int) (row.get(0, 1)[0] * frame.rows());
-                            int width = (int) (row.get(0, 2)[0] * frame.cols());
-                            int height = (int) (row.get(0, 3)[0] * frame.rows());
-                            int left = centerX - width / 2;
-                            int top = centerY - height / 2;
+                    for (int i = 0; i < result.size(); ++i) {
+                        Mat level = result.get(i);
+                        for (int j = 0; j < level.rows(); ++j) {
+                            Mat row = level.row(j);
+                            Mat scores = row.colRange(5, level.cols());
+                            Core.MinMaxLocResult mm = Core.minMaxLoc(scores);
+                            float confidence = (float) mm.maxVal;
+                            Point classIdPoint = mm.maxLoc;
 
-                            clsIds.add((int) classIdPoint.x);
-                            confs.add(confidence);
+                            if (confidence > confThreshold) {
+                                int centerX = (int) (row.get(0, 0)[0] * frame.cols());
+                                int centerY = (int) (row.get(0, 1)[0] * frame.rows());
+                                int width = (int) (row.get(0, 2)[0] * frame.cols());
+                                int height = (int) (row.get(0, 3)[0] * frame.rows());
+                                int left = centerX - width / 2;
+                                int top = centerY - height / 2;
 
-                            Hand existingHand = isSameHand(left, top, width, height);
+                                clsIds.add((int) classIdPoint.x);
+                                confs.add(confidence);
 
-                            if (existingHand != null) {
-                                rects.add(existingHand);
-                            } else {
-                                rects.add(new Hand(left, top, width, height,threshold));
+                                Hand existingHand = isSameHand(left, top, width, height);
+
+                                if (existingHand != null) {
+                                    rects.add(existingHand);
+                                } else {
+                                    rects.add(new Hand(left, top, width, height, threshold));
+                                }
                             }
                         }
                     }
-                }
 
-                history.clear();
-                history.addAll(rects);
+                    history.clear();
+                    history.addAll(rects);
 
-                float nmsThresh = 0.6f;
+                    float nmsThresh = 0.6f;
 
-                if (!confs.isEmpty()) {
-                    MatOfFloat confidences = new MatOfFloat(Converters.vector_float_to_Mat(confs));
-                    Hand[] boxesArray = rects.toArray(new Hand[0]);
-                    MatOfRect2d boxes = new MatOfRect2d();
-                    boxes.fromArray(boxesArray);
-                    MatOfInt indices = new MatOfInt();
-                    Dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThresh, indices);
+                    if (!confs.isEmpty()) {
+                        MatOfFloat confidences = new MatOfFloat(Converters.vector_float_to_Mat(confs));
+                        Hand[] boxesArray = rects.toArray(new Hand[0]);
+                        MatOfRect2d boxes = new MatOfRect2d();
+                        boxes.fromArray(boxesArray);
+                        MatOfInt indices = new MatOfInt();
+                        Dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThresh, indices);
 
-                    int[] ind = indices.toArray();
+                        int[] ind = indices.toArray();
 
-                    for (int i = 0; i < ind.length; ++i) {
-                        int idx = ind[i];
-                        Hand box = boxesArray[idx];
-                        Imgproc.rectangle(frame, new Point(box.getX(),box.getY()), box.br(), new Scalar(0, 0, 255), 2);
-                        Imgproc.putText(frame, box.getName(), box.tl(), 2, 5.0, new Scalar(255, 0, 0));
+                        for (int i = 0; i < ind.length; ++i) {
+                            int idx = ind[i];
+                            Hand box = boxesArray[idx];
+                            Imgproc.rectangle(frame, new Point(box.getX(), box.getY()), box.br(), new Scalar(0, 0, 255), 2);
+                            Imgproc.putText(frame, box.getName(), box.tl(), 2, 5.0, new Scalar(255, 0, 0));
+                        }
                     }
+                    return updateImage(frame);
                 }
-                updateImage(frame);
-
+            } else {
+                Thread.sleep(1000);
             }
         }
     }
 
-    private void updateImage(Mat frame) {
-        ImageIcon image = new ImageIcon(Mat2BufferedImage(frame));
-        vidpanel.setIcon(image);
-        vidpanel.repaint();
+    private ImageIcon updateImage(Mat frame) {
+        return new ImageIcon(Mat2BufferedImage(frame));
+//        vidpanel.setIcon(image);
+//        vidpanel.repaint();
     }
 
 
@@ -212,8 +273,8 @@ public class ObjectsDetection {
     private @Nullable Hand isSameHand(int left, int top, int width, int height) {
         for (Hand oldHand : history) {
             if (Math.abs(oldHand.getX() - left) <= tolerance && Math.abs(oldHand.getY() - top) <= tolerance) {
-                var action = oldHand.update(left,top, width, height);
-                if(action != null) {
+                var action = oldHand.update(left, top, width, height);
+                if (action != null) {
 
                     switch (action) {
                         case left -> apparateFunctions.startFunction(move_left);
@@ -229,4 +290,10 @@ public class ObjectsDetection {
         }
         return null;
     }
+
+//    public static void main(String[] args) throws InterruptedException {
+//        new ObjectsDetection(Functionality.arrow_is_left, Functionality.arrow_is_left, Functionality.arrow_is_left, Functionality.arrow_is_left, Functionality.arrow_is_left, Functionality.arrow_is_left).
+//                configurationObject();
+//
+//    }
 }

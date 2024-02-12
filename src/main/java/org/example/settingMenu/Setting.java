@@ -12,7 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class App extends JPanel {
+public class Setting extends JPanel {
     private final JComboBox<String> swipeRightHand;
     private final JComboBox<String> swipeUpHand;
     private final JComboBox<String> swipeDownHand;
@@ -22,7 +22,7 @@ public class App extends JPanel {
     private final  HashMap<String, Functionality> mapComposeFunc;
     private String path = "src/main/resources/properties.txt";
 
-    public App(HashMap<String, Functionality> mapComposeFunc) {
+    public Setting(HashMap<String, Functionality> mapComposeFunc) {
         this.mapComposeFunc = mapComposeFunc;
         JPanel panel = new JPanel();
         panel.setBackground(new Color(173, 205, 222));
@@ -111,12 +111,12 @@ public class App extends JPanel {
         File file = new File(path);
         try (FileWriter fileWriter = new FileWriter(file.getAbsoluteFile())){
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write("Left_Swipe=" + swipeLeftHand.getSelectedItem());
-            bufferedWriter.write("Right_Swipe=" + swipeRightHand.getSelectedItem());
-            bufferedWriter.write("Up_Swipe=" + swipeUpHand.getSelectedItem());
-            bufferedWriter.write("Down_Swipe=" + swipeDownHand.getSelectedItem());
-            bufferedWriter.write("Swipe_In=" + convergenceHands.getSelectedItem());
-            bufferedWriter.write("Swipe_Out=" + spreadingHands.getSelectedItem());
+            bufferedWriter.write("Left_Swipe=" + swipeLeftHand.getSelectedItem() + "\n");
+            bufferedWriter.write("Right_Swipe=" + swipeRightHand.getSelectedItem() + "\n");
+            bufferedWriter.write("Up_Swipe=" + swipeUpHand.getSelectedItem() + "\n");
+            bufferedWriter.write("Down_Swipe=" + swipeDownHand.getSelectedItem() + "\n");
+            bufferedWriter.write("Swipe_In=" + convergenceHands.getSelectedItem() + "\n");
+            bufferedWriter.write("Swipe_Out=" + spreadingHands.getSelectedItem() + "\n");
             bufferedWriter.flush();
         }
         return false;
