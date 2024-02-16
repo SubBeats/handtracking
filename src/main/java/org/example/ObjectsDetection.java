@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.FileManipulation.FileManipulation;
 import org.example.apparate.ApparateFunctions;
 import org.example.list.Functionality;
 import org.example.model.Hand;
@@ -81,7 +82,7 @@ public class ObjectsDetection {
 
     private void configuration(){
         jframe.setContentPane(vidpanel);
-        //jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jframe.setSize(512, 512);
         jframe.setVisible(true);
         jframe.addMouseListener(new MouseAdapter() {
@@ -241,8 +242,8 @@ public class ObjectsDetection {
         BufferedImage img = null;
         try {
             img = ImageIO.read(in);
-            Image resizedImage = img.getScaledInstance(512, 512, Image.SCALE_SMOOTH);
-            BufferedImage bufferedImage = new BufferedImage(512, 512, BufferedImage.TYPE_INT_RGB);
+            Image resizedImage = img.getScaledInstance(400, 300, Image.SCALE_SMOOTH);
+            BufferedImage bufferedImage = new BufferedImage(400, 300, BufferedImage.TYPE_INT_RGB);
             bufferedImage.getGraphics().drawImage(resizedImage, 0, 0, null);
             return bufferedImage;
         } catch (IOException e) {
@@ -272,34 +273,8 @@ public class ObjectsDetection {
         return null;
     }
 
-    private ArrayList<Functionality> readConfigFile() {
-        ArrayList<Functionality> arrayList = new ArrayList<>();
-
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split("=");
-                if (parts.length >= 2) {
-                    String key = parts[0];
-                    String value = parts[1];
-                    //System.out.println("Key: " + key + ", Value: " + value);
-                    arrayList.add(mapComposeFunc.get(value));
-                }
-            }
-            if (arrayList.size() - 1 != 6) {
-                for (int i = 0; i < 5; i++) {
-                    arrayList.add(mapComposeFunc.get(0));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return arrayList;
-
-    }
-
     private void initMovements() {
-        ArrayList<Functionality> arrayFromSettingFile = readConfigFile();
+        ArrayList<Functionality> arrayFromSettingFile = FileManipulation.readConfigFile(0);
         move_left = arrayFromSettingFile.get(0);
         move_right = arrayFromSettingFile.get(1);
         move_up = arrayFromSettingFile.get(2);

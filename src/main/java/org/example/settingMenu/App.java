@@ -1,5 +1,6 @@
 package org.example.settingMenu;
 
+import org.example.FileManipulation.FileManipulation;
 import org.example.Main;
 import org.example.list.Functionality;
 
@@ -11,6 +12,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class App extends JPanel {
@@ -21,12 +23,18 @@ public class App extends JPanel {
     private final JComboBox<String> spreadingHands;
     private final JComboBox<String> swipeLeftHand;
     private String path = "src/main/resources/properties.txt";
+    ArrayList arr;
+    int index = 0;
+
 
     public App() {
+
         JPanel panel = new JPanel();
         panel.setBackground(new Color(173, 205, 222));
         panel.setLayout(new GridLayout(9, 1));
         setBackground(new Color(173, 205, 222));
+
+        arr = FileManipulation.readConfigFile(1);
 
         JLabel swipeLeftHandLabel = new JLabel("Тип управления свайпом влево рукой:");
         swipeLeftHand = createComboBox();
@@ -61,7 +69,9 @@ public class App extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    writeInSettingFile();
+                    index = 0;
+                    FileManipulation.writeInSettingFile(swipeLeftHand.getSelectedItem(),swipeRightHand.getSelectedItem(),swipeUpHand.getSelectedItem(),
+                            swipeDownHand.getSelectedItem(),convergenceHands.getSelectedItem(),spreadingHands.getSelectedItem());
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -103,21 +113,12 @@ public class App extends JPanel {
         Main.mapComposeFunc.forEach((key, value)-> {
             comboBox.addItem(key);
         });
+        selectItem(comboBox);
     }
 
-
-    private boolean writeInSettingFile() throws IOException {
-        File file = new File(path);
-        try (FileWriter fileWriter = new FileWriter(file.getAbsoluteFile())){
-            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write("Left_Swipe=" + swipeLeftHand.getSelectedItem()+"\n");
-            bufferedWriter.write("Right_Swipe=" + swipeRightHand.getSelectedItem()+"\n");
-            bufferedWriter.write("Up_Swipe=" + swipeUpHand.getSelectedItem()+"\n");
-            bufferedWriter.write("Down_Swipe=" + swipeDownHand.getSelectedItem()+"\n");
-            bufferedWriter.write("Swipe_In=" + convergenceHands.getSelectedItem()+"\n");
-            bufferedWriter.write("Swipe_Out=" + spreadingHands.getSelectedItem()+"\n");
-            bufferedWriter.flush();
-        }
-        return false;
+    private void selectItem(JComboBox<String> comboBox){
+        comboBox.setSelectedItem(arr.get(index));
+        index++;
     }
+
 }
