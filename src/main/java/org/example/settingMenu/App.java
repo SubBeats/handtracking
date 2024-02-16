@@ -1,5 +1,6 @@
 package org.example.settingMenu;
 
+import org.example.Main;
 import org.example.list.Functionality;
 
 import javax.swing.*;
@@ -12,18 +13,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class Setting extends JPanel {
+public class App extends JPanel {
     private final JComboBox<String> swipeRightHand;
     private final JComboBox<String> swipeUpHand;
     private final JComboBox<String> swipeDownHand;
     private final JComboBox<String> convergenceHands;
     private final JComboBox<String> spreadingHands;
     private final JComboBox<String> swipeLeftHand;
-    private final  HashMap<String, Functionality> mapComposeFunc;
     private String path = "src/main/resources/properties.txt";
 
-    public Setting(HashMap<String, Functionality> mapComposeFunc) {
-        this.mapComposeFunc = mapComposeFunc;
+    public App() {
         JPanel panel = new JPanel();
         panel.setBackground(new Color(173, 205, 222));
         panel.setLayout(new GridLayout(9, 1));
@@ -101,7 +100,7 @@ public class Setting extends JPanel {
     }
 
     private void addItems(JComboBox<String> comboBox){
-        mapComposeFunc.forEach((key,value)-> {
+        Main.mapComposeFunc.forEach((key, value)-> {
             comboBox.addItem(key);
         });
     }
@@ -111,6 +110,12 @@ public class Setting extends JPanel {
         File file = new File(path);
         try (FileWriter fileWriter = new FileWriter(file.getAbsoluteFile())){
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+            bufferedWriter.write("Left_Swipe=" + swipeLeftHand.getSelectedItem()+"\n");
+            bufferedWriter.write("Right_Swipe=" + swipeRightHand.getSelectedItem()+"\n");
+            bufferedWriter.write("Up_Swipe=" + swipeUpHand.getSelectedItem()+"\n");
+            bufferedWriter.write("Down_Swipe=" + swipeDownHand.getSelectedItem()+"\n");
+            bufferedWriter.write("Swipe_In=" + convergenceHands.getSelectedItem()+"\n");
+            bufferedWriter.write("Swipe_Out=" + spreadingHands.getSelectedItem()+"\n");
             bufferedWriter.write("Left_Swipe=" + swipeLeftHand.getSelectedItem() + "\n");
             bufferedWriter.write("Right_Swipe=" + swipeRightHand.getSelectedItem() + "\n");
             bufferedWriter.write("Up_Swipe=" + swipeUpHand.getSelectedItem() + "\n");

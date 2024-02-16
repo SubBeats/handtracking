@@ -3,16 +3,17 @@ package org.example;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.list.Functionality;
-import org.example.settingMenu.Example;
+//import org.example.settingMenu.Example;
 
 import java.util.HashMap;
 
 public class Main {
+    public static HashMap<String, Functionality> mapComposeFunc;
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) throws InterruptedException {
 
-        HashMap<String, Functionality> mapComposeFunc = new HashMap<>();
+        mapComposeFunc = new HashMap<>();
         mapComposeFunc.put("Увеличие громекости",Functionality.upVolume);
         mapComposeFunc.put("Уменьшение громекости",Functionality.downVolume);
         mapComposeFunc.put("Уменьшение яркости",Functionality.downBrightness);
@@ -28,17 +29,19 @@ public class Main {
         mapComposeFunc.put("Список вкладок",Functionality.outToGeneralTabs);
         mapComposeFunc.put("Выбрать вкладку",Functionality.selectTab);
 
-        new Example(mapComposeFunc);
+        //new Example(mapComposeFunc);
 
 
-        //ObjectsDetection objectsDetection = new ObjectsDetection(mapComposeFunc.get("Увеличение яркости"),mapComposeFunc.get("Уменьшение яркости"),
-        //mapComposeFunc.get("Увеличие громекости"),mapComposeFunc.get("Уменьшение громекости"),
-        //mapComposeFunc.get("Увеличие громекости"),mapComposeFunc.get("Уменьшение громекости"));
-        //objectsDetection.detectObjects();
+        ObjectsDetection objectsDetection = new ObjectsDetection(mapComposeFunc.get("Увеличение яркости"),mapComposeFunc.get("Уменьшение яркости"),
+                mapComposeFunc.get("Увеличие громекости"),mapComposeFunc.get("Уменьшение громекости"),
+                mapComposeFunc.get("Увеличие громекости"),mapComposeFunc.get("Уменьшение громекости"));
+        objectsDetection.detectObjects();
 
         //logger.info("Message");
         //ApparateFunctions apparateFunctions = new ApparateFunctions();
         //apparateFunctions.startFunction(nextTab);
+
+
     }
 
 }
