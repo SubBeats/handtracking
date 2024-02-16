@@ -22,25 +22,26 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.example.Main.mapComposeFunc;
 
 public class ObjectsDetection {
 
     static ArrayList<Hand> history = new ArrayList<>();
+    private String path = "src/main/resources/properties.txt";
     private static final int tolerance = 100;
 
     private final ApparateFunctions apparateFunctions;
 
-    private final Functionality move_left;
-    private final Functionality move_right;
-    private final Functionality move_up;
-    private final Functionality move_down;
-    private final Functionality convergence;
-    private final Functionality divergence;
+    private Functionality move_left;
+    private Functionality move_right;
+    private Functionality move_up;
+    private Functionality move_down;
+    private Functionality convergence;
+    private Functionality divergence;
     private boolean isPaused = false;
     private final ImageIcon pauseIcon;
     private final int threshold = 150;
@@ -119,6 +120,7 @@ public class ObjectsDetection {
                     public void actionPerformed(ActionEvent e) {
                         jframe.setVisible(true); // Показываем основное окно
                         settingsFrame.dispose(); // Закрываем окно настроек
+                        initMovements();
                     }
                 });
 
@@ -268,5 +270,41 @@ public class ObjectsDetection {
             }
         }
         return null;
+    }
+
+    private ArrayList<Functionality> readConfigFile() {
+        ArrayList<Functionality> arrayList = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("=");
+                if (parts.length >= 2) {
+                    String key = parts[0];
+                    String value = parts[1];
+                    //System.out.println("Key: " + key + ", Value: " + value);
+                    arrayList.add(mapComposeFunc.get(value));
+                }
+            }
+            if (arrayList.size() - 1 != 6) {
+                for (int i = 0; i < 5; i++) {
+                    arrayList.add(mapComposeFunc.get(0));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return arrayList;
+
+    }
+
+    private void initMovements() {
+        ArrayList<Functionality> arrayFromSettingFile = readConfigFile();
+        move_left = arrayFromSettingFile.get(0);
+        move_right = arrayFromSettingFile.get(1);
+        move_up = arrayFromSettingFile.get(2);
+        move_down = arrayFromSettingFile.get(3);
+        convergence = arrayFromSettingFile.get(4);
+        divergence = arrayFromSettingFile.get(5);
     }
 }

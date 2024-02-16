@@ -116,12 +116,6 @@ public class App extends JPanel {
             bufferedWriter.write("Down_Swipe=" + swipeDownHand.getSelectedItem()+"\n");
             bufferedWriter.write("Swipe_In=" + convergenceHands.getSelectedItem()+"\n");
             bufferedWriter.write("Swipe_Out=" + spreadingHands.getSelectedItem()+"\n");
-            bufferedWriter.write("Left_Swipe=" + swipeLeftHand.getSelectedItem() + "\n");
-            bufferedWriter.write("Right_Swipe=" + swipeRightHand.getSelectedItem() + "\n");
-            bufferedWriter.write("Up_Swipe=" + swipeUpHand.getSelectedItem() + "\n");
-            bufferedWriter.write("Down_Swipe=" + swipeDownHand.getSelectedItem() + "\n");
-            bufferedWriter.write("Swipe_In=" + convergenceHands.getSelectedItem() + "\n");
-            bufferedWriter.write("Swipe_Out=" + spreadingHands.getSelectedItem() + "\n");
             bufferedWriter.flush();
         }
         return false;
