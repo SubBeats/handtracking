@@ -137,6 +137,27 @@ public class ApparateFunctions {
         }
     }
 
+    private void OpenNewTabInSafari(){
+        try {
+            String arg = """
+                tell application "Safari"
+                   if (count of windows) = 0 then
+                        activate
+                   else
+                        tell window 1
+                            set current tab to (make new tab with properties {URL:"https://www.google.ru/?client=safari&channel=mac_bm"})
+                        end tell
+                   end if
+                   reopen
+                end tell
+                """;
+            String[] scriptCommand = { "osascript", "-e",arg};
+            runtime.exec(scriptCommand);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void startFunction(Functionality functionality){
         switch (functionality) {
             case upVolume -> {
