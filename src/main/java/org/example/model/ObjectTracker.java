@@ -22,7 +22,7 @@ public class ObjectTracker {
     public int getCoordinates() {
         int sum = 0;
         for (int i = 0; i < coordinates.size() - 1; i++) {
-            sum += Math.abs(coordinates.get(i) - coordinates.get(i + 1));
+            sum += (coordinates.get(i) - coordinates.get(i + 1));
         }
         return sum;
     }

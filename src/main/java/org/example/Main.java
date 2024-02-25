@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.example.list.Functionality;
 //import org.example.settingMenu.Example;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 public class Main {
@@ -37,7 +38,7 @@ public class Main {
                 mapComposeFunc.get("Увеличие громекости"),mapComposeFunc.get("Уменьшение громекости"));
         objectsDetection.detectObjects();
 
-        //logger.info("Message");
+        logger.info("Start app");
         //ApparateFunctions apparateFunctions = new ApparateFunctions();
         //apparateFunctions.startFunction(nextTab);
 

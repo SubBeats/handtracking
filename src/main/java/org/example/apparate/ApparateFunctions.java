@@ -137,7 +137,7 @@ public class ApparateFunctions {
         }
     }
 
-    private void OpenNewTabInSafari(){
+    private void openNewTabInSafari(){
         try {
             String arg = """
                 tell application "Safari"
@@ -201,6 +201,9 @@ public class ApparateFunctions {
             }
             case selectTab -> {
                 SelectTab();
+            }
+            case openSafari -> {
+                openNewTabInSafari();
             }
         }
     }

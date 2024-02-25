@@ -252,6 +252,7 @@ public class ObjectsDetection {
         return img;
     }
 
+    //метод для проверки того же обьекта погрешность равна переменной tolerance
     private @Nullable Hand isSameHand(int left, int top, int width, int height) {
         for (Hand oldHand : history) {
             if (Math.abs(oldHand.getX() - left) <= tolerance && Math.abs(oldHand.getY() - top) <= tolerance) {

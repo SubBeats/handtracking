@@ -31,11 +31,17 @@ public class Hand extends Rect2d {
         this.x = x;
         this.y = y;
 
-        if(this.getCoordinateX()>threshold) {
-            //call func to do smf
+        int diffX = this.getCoordinateX();
+        int diffY = this.getCoordinateY();
+
+        if(diffX!= 0 && diffX>threshold) {
             return (Movements.left);
-        } else if (this.getCoordinateX()<-threshold) {
+        } else if (diffX!= 0 && diffX<-threshold ) {
             return (Movements.right);
+        }else if(diffY!= 0 && diffY>threshold) {
+            return (Movements.up);
+        } else if (diffY!= 0 && diffY<-threshold) {
+            return (Movements.down);
         }
         return null;
     }

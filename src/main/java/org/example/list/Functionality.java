@@ -14,5 +14,6 @@ public enum Functionality {
     previousTab,
     nextTab,
     outToGeneralTabs,
-    selectTab
+    selectTab,
+    openSafari
 }

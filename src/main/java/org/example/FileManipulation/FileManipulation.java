@@ -22,7 +22,6 @@ public class FileManipulation {
                 if (parts.length >= 2) {
                     String key = parts[0];
                     String value = parts[1];
-                    //System.out.println("Key: " + key + ", Value: " + value);
                     arrayListFromFunctionMap.add(mapComposeFunc.get(value));
                     arrayListOfValue.add(value);
                 }

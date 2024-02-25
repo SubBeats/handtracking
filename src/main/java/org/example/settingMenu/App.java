@@ -2,18 +2,13 @@ package org.example.settingMenu;
 
 import org.example.FileManipulation.FileManipulation;
 import org.example.Main;
-import org.example.list.Functionality;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class App extends JPanel {
     private final JComboBox<String> swipeRightHand;
@@ -83,11 +78,11 @@ public class App extends JPanel {
         add(panel);
 
         JScrollPane scrollPane = new JScrollPane(panel);
-        scrollPane.setPreferredSize(new Dimension(600, 400));
+        //scrollPane.setPreferredSize(new Dimension(600, 400));
 
         add(scrollPane);
 
-        setSize(650, 450);
+        setSize(300, 400);
 
         setVisible(true);
     }
